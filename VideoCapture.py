@@ -2,33 +2,33 @@ import cv2
 import time , pandas
 from datetime import datetime
 
-video = cv2.VideoCapture(0 , cv2.CAP_DSHOW)
+video = cv2.VideoCapture(0 , cv2.CAP_DSHOW)              # Used to capture the video from the laptops webcam
 first_frame = None
-df = pandas.DataFrame(columns = ["Start" , "End"])
+df = pandas.DataFrame(columns = ["Start" , "End"])       # Used to create a dataframe of coloums to easily append the values of datetime
 status_list = [None, None]
 times=[]
 while True:
-    check, frame = video.read()
+    check, frame = video.read()                          # to get the frame(just the first one) without the object in it so that it can be compared with new frame with object.
     status = 0
-    gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
-    gray = cv2.GaussianBlur(gray,(21,2w1),0)
+    gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)        # to convert the image to gray (i.e black and white)
+    gray = cv2.GaussianBlur(gray,(21,21),0)              # Used to blur the image to reduce the image noise.
 
     if first_frame is None:
-        first_frame = gray
+        first_frame = gray                               # as mentioned before we are assigning the first frame of gray to first frame to compare with other frame
         continue
 
-    delta_frame = cv2.absdiff(first_frame , gray)
+    delta_frame = cv2.absdiff(first_frame , gray)        
     thresh_frame = cv2.threshold(delta_frame,30,255,cv2.THRESH_BINARY)[1]
     thresh_frame = cv2.dilate(thresh_frame , None , iterations = 2)
 
-    (cnts,_) = cv2.findContours(thresh_frame.copy(), cv2.RETR_EXTERNAL , cv2.CHAIN_APPROX_SIMPLE)
+    (cnts,_) = cv2.findContours(thresh_frame.copy(), cv2.RETR_EXTERNAL , cv2.CHAIN_APPROX_SIMPLE)   # to find the ojects in the frame
 
     for contour in cnts:
         if cv2.contourArea(contour) <10000:
             continue
         status = 1
         (x,y,w,h) = cv2.boundingRect(contour)
-        cv2.rectangle(frame,(x,y),(x+w,y+h) , (0,255,0),3)
+        cv2.rectangle(frame,(x,y),(x+w,y+h) , (0,255,0),3)     # Viewing the moving oject with a green rectangular like shape 
 
     status_list.append(status)
 
@@ -43,13 +43,13 @@ while True:
     cv2.imshow("Color frame" ,frame)
 
     key = cv2.waitKey(1)
-    if key == ord("q"):
+    if key == ord("q"):                                       # This is to come out of the video showing process.
         if status == 1:
             times.append(datetime.now())
         break
 print(times)
 for i in range(0,len(times),2):
-    df = df.append({"Start":times[i] ,"End":times[i+1]},ignore_index=True)
+    df = df.append({"Start":times[i] ,"End":times[i+1]},ignore_index=True)   # This si used to append the datetime value to the df variable
 df.to_csv("Times.csv")
 video.release()
 cv2.destroyAllWindows()
