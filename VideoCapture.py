@@ -24,7 +24,7 @@ while True:
     (cnts,_) = cv2.findContours(thresh_frame.copy(), cv2.RETR_EXTERNAL , cv2.CHAIN_APPROX_SIMPLE)   #Used to find the objects that have a specfic area.
 
     for contour in cnts:
-        if cv2.contourArea(contour) <10000:
+        if cv2.contourArea(contour) <10000:                      # It is a condition that the area of moving object should have
             continue
         status = 1
         (x,y,w,h) = cv2.boundingRect(contour)
@@ -32,10 +32,10 @@ while True:
 
     status_list.append(status)
 
-    if status_list[-1] ==1 and status_list[-2] == 0:
-        times.append(datetime.now())
-    if status_list[-1] ==0 and status_list[-2] == 1:
-        times.append(datetime.now())
+    if status_list[-1] ==1 and status_list[-2] == 0:             # This is used to find when the object enters the frame .
+        times.append(datetime.now())                             # To store the entering time of object.
+    if status_list[-1] ==0 and status_list[-2] == 1:             # This is used to find when the oject leaves the frame.
+        times.append(datetime.now())                             # To store the leaving time of the object.
 
     cv2.imshow("Gray frame" , gray)
     cv2.imshow("delta_frame" , delta_frame)
